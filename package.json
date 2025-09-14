@@ -3,7 +3,9 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-   "engines": { "node": "22.x" },
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -55,6 +57,7 @@
     "react-resizable-panels": "^2.1.7",
     "react-router-dom": "^7.2.0",
     "recharts": "^2.15.1",
+    "resend": "^6.0.3",
     "sonner": "^2.0.1",
     "tailwind-merge": "^3.0.2",
     "tailwindcss-animate": "^1.0.7",

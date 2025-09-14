@@ -1,26 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Building2, Calendar, ExternalLink, MapPin } from 'lucide-react';
-import { Experience } from '@/api/entities';
+// ❌ import { Experience } from '@/api/entities';
+import { getExperiences } from '@/api/localExperience'; // ✅ local JSON loader
 
 export default function ExperienceSection() {
   const [experiences, setExperiences] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    loadExperiences();
-  }, []);
-
-  const loadExperiences = async () => {
     try {
-      const allExperiences = await Experience.list('-created_date');
-      setExperiences(allExperiences);
-    } catch (error) {
-      console.error('Error loading experiences:', error);
+      const items = getExperiences(); // sync, no network/auth
+      setExperiences(items);
+    } catch (e) {
+      console.error('Error loading local experience.json:', e);
+      setExperiences([]);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   if (experiences.length === 0 && !isLoading) {
     return (
@@ -77,10 +75,11 @@ export default function ExperienceSection() {
                       src={exp.logo_url}
                       alt={exp.company}
                       className="w-full h-full object-contain p-2"
+                      loading="lazy"
                     />
                   </div>
                 )}
-                
+
                 {/* Content */}
                 <div className="flex-1">
                   <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between mb-4">
@@ -91,11 +90,11 @@ export default function ExperienceSection() {
                         {exp.company}
                       </div>
                     </div>
-                    
+
                     <div className="flex flex-col lg:text-right text-slate-600 space-y-1">
                       <div className="flex items-center text-sm">
                         <Calendar className="w-4 h-4 mr-2 lg:hidden" />
-                        {exp.start_year} - {exp.end_year || 'Present'}
+                        {exp.start_year ?? ''} - {exp.end_year ?? 'Present'}
                       </div>
                       {exp.location && (
                         <div className="flex items-center text-sm">
@@ -103,18 +102,20 @@ export default function ExperienceSection() {
                           {exp.location}
                         </div>
                       )}
-                      <span className="px-3 py-1 bg-sage/10 text-sage text-xs font-medium rounded-full w-fit lg:ml-auto">
-                        {exp.type.replace(/_/g, ' ')}
-                      </span>
+                      {exp.type && (
+                        <span className="px-3 py-1 bg-sage/10 text-sage text-xs font-medium rounded-full w-fit lg:ml-auto capitalize">
+                          {exp.type.replace(/_/g, ' ')}
+                        </span>
+                      )}
                     </div>
                   </div>
-                  
+
                   {exp.description && (
                     <p className="text-slate-600 leading-relaxed mb-4">
                       {exp.description}
                     </p>
                   )}
-                  
+
                   {exp.website && (
                     <a
                       href={exp.website}

@@ -1,0 +1,53 @@
+[
+  {
+    "title": "Building Global Startups",
+    "event_name": "Entrepreneur's Forum",
+    "description": "Panel discussion on strategies for building and scaling technology companies across international markets",
+    "date": "2024-01-20",
+    "location": "London, UK",
+    "type": "panel",
+    "audience_size": "800+",
+    "video_url": "",
+    "featured": true,
+    "id": "68c09c9bae3127690b44eda7",
+    "created_date": "2025-09-09T21:31:07.924000",
+    "updated_date": "2025-09-09T21:31:07.924000",
+    "created_by_id": "68c09bda8d291c998f9da4d1",
+    "created_by": "wiemmimouni74@gmail.com",
+    "is_sample": ""
+  },
+  {
+    "title": "The Future of Sustainable Technology",
+    "event_name": "Global Innovation Summit 2024",
+    "description": "Keynote presentation on emerging trends in sustainable technology and their impact on global business transformation",
+    "date": "2024-03-15",
+    "location": "Singapore",
+    "type": "keynote",
+    "audience_size": "2,500+",
+    "video_url": "https://example.com/video",
+    "featured": true,
+    "id": "68c09c9bae3127690b44eda6",
+    "created_date": "2025-09-09T21:31:07.924000",
+    "updated_date": "2025-09-09T21:31:07.924000",
+    "created_by_id": "68c09bda8d291c998f9da4d1",
+    "created_by": "wiemmimouni74@gmail.com",
+    "is_sample": ""
+  },
+  {
+    "title": "The Entrepreneur's Journey",
+    "event_name": "Business Leaders Podcast",
+    "description": "In-depth conversation about entrepreneurial challenges, successes, and lessons learned from building multiple companies",
+    "date": "2023-11-10",
+    "location": "Virtual",
+    "type": "podcast",
+    "audience_size": "50K+",
+    "video_url": "https://example.com/podcast",
+    "featured": true,
+    "id": "68c09c9bae3127690b44eda8",
+    "created_date": "2025-09-09T21:31:07.924000",
+    "updated_date": "2025-09-09T21:31:07.924000",
+    "created_by_id": "68c09bda8d291c998f9da4d1",
+    "created_by": "wiemmimouni74@gmail.com",
+    "is_sample": ""
+  }
+]

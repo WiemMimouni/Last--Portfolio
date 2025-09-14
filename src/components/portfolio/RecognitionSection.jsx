@@ -1,11 +1,11 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Award, MapPin, Calendar, Trophy, Users, Handshake, Link as LinkIcon, Star } from 'lucide-react';
+import { Award, MapPin, Trophy, Users, Handshake, Link as LinkIcon, Star } from 'lucide-react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Recognition } from '@/api/entities';
+// ❌ import { Recognition } from '@/api/entities';
+import recData from '@/data/recognition.json'; // ✅ local JSON
 
 export default function RecognitionSection() {
   const [recognitions, setRecognitions] = useState([]);
@@ -15,16 +15,36 @@ export default function RecognitionSection() {
     loadRecognitions();
   }, []);
 
+  // ---- Local loader (no network, no auth) ----
   const loadRecognitions = async () => {
     try {
-      const allRecognitions = await Recognition.list('-year');
-      setRecognitions(allRecognitions);
+      const norm = (r) => ({
+        id: r.id ?? `${r.title || 'item'}-${r.year || 'noyear'}`,
+        title: (r.title || '').trim(),
+        organization: (r.organization || r.org || '').trim(),
+        description: (r.description || '').trim(),
+        year: r.year != null ? Number(r.year) : null,
+        location: (r.location || '').trim(),
+        type: (r.type || '').trim(),           // 'award' | 'summit' | 'recognition' | 'partnership' …
+        link_url: r.link_url || r.url || '',
+      });
+
+      const cleaned = (recData ?? []).map(norm);
+      cleaned.sort((a, b) => {
+        const ya = a.year ?? -Infinity, yb = b.year ?? -Infinity;
+        if (yb !== ya) return yb - ya;                    // newest first
+        return a.title.localeCompare(b.title);
+      });
+
+      setRecognitions(cleaned);
     } catch (error) {
-      console.error('Error loading recognitions:', error);
+      console.error('Error loading local recognition.json:', error);
+      setRecognitions([]);
     } finally {
       setIsLoading(false);
     }
   };
+  // --------------------------------------------
 
   const getIcon = (type) => {
     switch (type) {
@@ -35,7 +55,7 @@ export default function RecognitionSection() {
       default: return Award;
     }
   };
-  
+
   const strategicPartners = [
     { name: "AWS Partner Network", logo: "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68c09bda8d291c998f9da4d0/fce872c74_unnamed2.png" },
     { name: "Microsoft", logo: "https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg" },
@@ -86,7 +106,6 @@ export default function RecognitionSection() {
       </div>
     );
   };
-  
 
   return (
     <section id="recognition" className="py-32 bg-pure-white">
@@ -129,10 +148,9 @@ export default function RecognitionSection() {
           <div className="space-y-10">
             {recognitions.map((recognition, index) => {
               const IconComponent = getIcon(recognition.type);
-              
               return (
                 <motion.div
-                  key={recognition.id}
+                  key={recognition.id ?? `${recognition.title}-${recognition.year}-${index}`}
                   initial={{ opacity: 0, y: 50 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.7, delay: index * 0.1, ease: [0.4, 0, 0.2, 1] }}
@@ -140,13 +158,18 @@ export default function RecognitionSection() {
                 >
                   <Card className="bg-pure-white/60 border border-subtle shadow-lg hover:shadow-xl transition-all duration-400 rounded-2xl overflow-hidden group hover-lift">
                     <div className="grid grid-cols-1 md:grid-cols-12 p-6 md:p-8 gap-6 items-start">
-                      
                       <div className="md:col-span-2 flex flex-col items-center text-center">
                         <div className="p-4 bg-deep-emerald/10 rounded-full mb-3">
                           <IconComponent className="w-7 h-7 text-deep-emerald" />
                         </div>
-                        <p className="font-bold text-xl text-deep-emerald">{recognition.year}</p>
-                        <Badge variant="outline" className="mt-2 capitalize border-deep-emerald/30 text-deep-emerald/80">{recognition.type}</Badge>
+                        {recognition.year != null && (
+                          <p className="font-bold text-xl text-deep-emerald">{recognition.year}</p>
+                        )}
+                        {recognition.type && (
+                          <Badge variant="outline" className="mt-2 capitalize border-deep-emerald/30 text-deep-emerald/80">
+                            {recognition.type}
+                          </Badge>
+                        )}
                       </div>
 
                       <div className="md:col-span-10">
@@ -154,14 +177,18 @@ export default function RecognitionSection() {
                           <CardTitle className="text-2xl font-light text-charcoal leading-snug group-hover:text-deep-emerald transition-colors duration-300">
                             {recognition.title}
                           </CardTitle>
-                          <p className="text-md text-charcoal/70 font-medium pt-2">
-                            {recognition.organization}
-                          </p>
+                          {recognition.organization && (
+                            <p className="text-md text-charcoal/70 font-medium pt-2">
+                              {recognition.organization}
+                            </p>
+                          )}
                         </CardHeader>
                         <CardContent className="p-0">
-                          <p className="text-charcoal/80 leading-relaxed">
-                            {recognition.description}
-                          </p>
+                          {recognition.description && (
+                            <p className="text-charcoal/80 leading-relaxed">
+                              {recognition.description}
+                            </p>
+                          )}
                         </CardContent>
                         <CardFooter className="p-0 mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 text-charcoal/60">
                           {recognition.location && (
@@ -172,7 +199,11 @@ export default function RecognitionSection() {
                           )}
                           {recognition.link_url && (
                             <Button asChild variant="link" size="sm" className="p-0 h-auto text-deep-emerald hover:text-soft-rose text-sm font-medium">
-                              <a href={recognition.link_url} target="_blank" rel="noopener noreferrer">
+                              <a
+                                href={recognition.link_url.startsWith('http') ? recognition.link_url : `https://${recognition.link_url}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
                                 <LinkIcon className="w-4 h-4 mr-1.5" />
                                 View Link
                               </a>
@@ -187,12 +218,12 @@ export default function RecognitionSection() {
             })}
           </div>
         )}
-        
-        <motion.div 
-          initial={{ opacity: 0, y: 40 }} 
-          whileInView={{ opacity: 1, y: 0 }} 
-          transition={{ duration: 0.8, delay: 0.5 }} 
-          viewport={{ once: true }} 
+
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.5 }}
+          viewport={{ once: true }}
           className="bg-pure-white rounded-3xl p-12 mt-24 overflow-x-hidden"
         >
           <div className="space-y-8">

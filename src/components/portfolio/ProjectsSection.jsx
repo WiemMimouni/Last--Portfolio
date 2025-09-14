@@ -1,10 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ExternalLink, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Project } from '@/api/entities';
+// ❌ import { Project } from '@/api/entities';
+import projectsData from '@/data/projects.json'; // ✅ local JSON
 
 export default function ProjectsSection() {
   const [projects, setProjects] = useState([]);
@@ -22,12 +22,20 @@ export default function ProjectsSection() {
     loadProjects();
   }, []);
 
+  // 🔁 now reads from src/data/projects.json
   const loadProjects = async () => {
     try {
-      const allProjects = await Project.list('-created_date');
+      // normalize a tiny bit so your JSX keeps working
+      const allProjects = (projectsData ?? []).map(p => ({
+        ...p,
+        // your component reads "subtitle" in a few places;
+        // use description or category as a fallback so it's never empty
+        subtitle: p.subtitle ?? p.description ?? p.category ?? ''
+      }));
       setProjects(allProjects);
     } catch (error) {
-      console.error('Error loading projects:', error);
+      console.error('Error loading local projects.json:', error);
+      setProjects([]);
     } finally {
       setIsLoading(false);
     }
@@ -70,7 +78,7 @@ export default function ProjectsSection() {
   };
 
   const scrollToContact = () => {
-    document.getElementById('contact')?.scrollIntoView({ 
+    document.getElementById('contact')?.scrollIntoView({
       behavior: 'smooth',
       block: 'start'
     });
@@ -89,15 +97,13 @@ export default function ProjectsSection() {
       </motion.h3>
       <div className="space-y-16">
         {projects.map((project, index) => (
-          <ProjectItem key={project.id} project={project} index={index} delay={delay + (index * 0.1)} />
+          <ProjectItem key={project.id ?? project.title} project={project} index={index} delay={delay + (index * 0.1)} />
         ))}
       </div>
     </div>
   );
 
   const ProjectItem = ({ project, index, delay }) => {
-    // projectsWithoutContact is no longer needed as all contact buttons now scroll to form.
-
     return (
       <motion.div
         initial={{ opacity: 0, y: 30 }}
@@ -130,9 +136,11 @@ export default function ProjectsSection() {
               )}
             </p>
             <div className="flex items-center gap-4 mb-6">
-              <Badge variant="outline" className="text-xs font-medium px-3 py-1 border-charcoal/50 text-charcoal">
-                {project.role}
-              </Badge>
+              {project.role && (
+                <Badge variant="outline" className="text-xs font-medium px-3 py-1 border-charcoal/50 text-charcoal">
+                  {project.role}
+                </Badge>
+              )}
             </div>
           </div>
         </div>
@@ -140,7 +148,7 @@ export default function ProjectsSection() {
           <p className="text-charcoal/80 leading-relaxed mb-6">
             <span className="font-medium text-charcoal">Snapshot:</span> {project.description}
           </p>
-          {project.highlights && project.highlights.length > 0 && (
+          {Array.isArray(project.highlights) && project.highlights.length > 0 && (
             <div className="mb-6">
               <h5 className="text-sm font-medium text-charcoal mb-3 uppercase tracking-wider">Highlights</h5>
               <ul className="space-y-2">
@@ -169,17 +177,27 @@ export default function ProjectsSection() {
         </div>
         <div className="flex flex-wrap gap-3">
           {project.url && (
-            <Button variant="outline" size="sm" className="text-xs font-medium text-charcoal border-charcoal/50 hover:bg-charcoal hover:text-white group" onClick={() => window.open(project.url.startsWith('http') ? project.url : `https://${project.url}`, '_blank')}>
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-xs font-medium text-charcoal border-charcoal/50 hover:bg-charcoal hover:text-white group"
+              onClick={() => window.open(project.url.startsWith('http') ? project.url : `https://${project.url}`, '_blank')}
+            >
               <ExternalLink className="w-3 h-3 mr-1 text-charcoal/80 group-hover:text-white transition-colors" /> View Live
             </Button>
           )}
-          <Button variant="outline" size="sm" className="text-xs font-medium text-charcoal border-charcoal/50 hover:bg-charcoal hover:text-white group" onClick={scrollToContact}>
+          <Button
+            variant="outline"
+            size="sm"
+            className="text-xs font-medium text-charcoal border-charcoal/50 hover:bg-charcoal hover:text-white group"
+            onClick={scrollToContact}
+          >
             <Mail className="w-3 h-3 mr-1 text-charcoal/80 group-hover:text-white transition-colors" /> Contact
           </Button>
         </div>
       </motion.div>
     );
-  }
+  };
 
   const organized = organizeProjects();
   const filteredProjects = getFilteredProjects();
@@ -187,18 +205,37 @@ export default function ProjectsSection() {
   return (
     <section id="projects" className="py-32 bg-pure-white">
       <div className="max-w-5xl mx-auto px-6 lg:px-12">
-        <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} viewport={{ once: true }} className="text-center mb-20">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          viewport={{ once: true }}
+          className="text-center mb-20"
+        >
           <h2 className="text-4xl lg:text-5xl font-light text-charcoal mb-6 tracking-tight">Projects & Startups</h2>
-          <p className="text-lg text-charcoal/70 max-w-3xl mx-auto leading-relaxed mb-12">High-value, investor-friendly work. Each tile lists outcome, model, and link.</p>
+          <p className="text-lg text-charcoal/70 max-w-3xl mx-auto leading-relaxed mb-12">
+            High-value, investor-friendly work. Each tile lists outcome, model, and link.
+          </p>
           <div className="flex flex-wrap justify-center gap-3">
             {categories.map((category) => (
-              <button key={category.id} onClick={() => setSelectedCategory(category.id)} className={`px-5 py-2 text-sm font-medium transition-all duration-300 border rounded-full ${selectedCategory === category.id ? 'bg-deep-emerald text-white border-deep-emerald' : 'text-charcoal border-light-neutral hover:border-deep-emerald hover:text-deep-emerald'}`}>
+              <button
+                key={category.id}
+                onClick={() => setSelectedCategory(category.id)}
+                className={`px-5 py-2 text-sm font-medium transition-all duration-300 border rounded-full ${
+                  selectedCategory === category.id
+                    ? 'bg-deep-emerald text-white border-deep-emerald'
+                    : 'text-charcoal border-light-neutral hover:border-deep-emerald hover:text-deep-emerald'
+                }`}
+              >
                 {category.label}
               </button>
             ))}
           </div>
         </motion.div>
-        {isLoading ? ( <div className="text-center text-charcoal/70">Loading projects...</div> ) : selectedCategory === 'all' ? (
+
+        {isLoading ? (
+          <div className="text-center text-charcoal/70">Loading projects...</div>
+        ) : selectedCategory === 'all' ? (
           <div>
             <ProjectGroup title="Founded & Leading" projects={organized.founded} delay={0.1} />
             <ProjectGroup title="Led as Technical Lead & Product Manager" projects={organized.technical} delay={0.2} />
@@ -207,7 +244,7 @@ export default function ProjectsSection() {
         ) : (
           <div className="space-y-16">
             {filteredProjects.map((project, index) => (
-              <ProjectItem key={project.id} project={project} index={index} delay={index * 0.1} />
+              <ProjectItem key={project.id ?? `${project.title}-${index}`} project={project} index={index} delay={index * 0.1} />
             ))}
           </div>
         )}
