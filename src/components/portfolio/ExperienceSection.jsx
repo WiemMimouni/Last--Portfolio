@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Building2, Calendar, ExternalLink, MapPin } from 'lucide-react';
-// ❌ import { Experience } from '@/api/entities';
 import { getExperiences } from '@/api/localExperience'; // ✅ local JSON loader
 
 export default function ExperienceSection() {

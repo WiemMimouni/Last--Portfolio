@@ -3,7 +3,6 @@ import { motion } from 'framer-motion';
 import { ExternalLink, Mail } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-// ❌ import { Project } from '@/api/entities';
 import projectsData from '@/data/projects.json'; // ✅ local JSON
 
 export default function ProjectsSection() {

@@ -4,8 +4,6 @@ import { Award, MapPin, Trophy, Users, Handshake, Link as LinkIcon, Star } from 
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-// ❌ import { Recognition } from '@/api/entities';
-// ❌ import { Recognition } from '@/api/entities';
 import recData from '@/data/recognition.json'; // ✅ local JSON
 
 export default function RecognitionSection() {

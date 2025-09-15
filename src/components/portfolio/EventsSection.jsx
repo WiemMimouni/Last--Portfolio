@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Calendar, MapPin, Users, PlayCircle, Mic } from 'lucide-react';
-// ❌ import { Event } from '@/api/entities';
 import eventsData from '@/data/events.json'; // ✅ local JSON
 
 export default function EventsSection() {
